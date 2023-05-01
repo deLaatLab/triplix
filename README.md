@@ -171,5 +171,8 @@ print(df)
 ## Installation
 Simply run the following command to install Triplix.
 ```bash
+pip3 install triplix
 
+# or
+python3 -m pip install triplix
 ```
