@@ -16,6 +16,15 @@ In particular, the relevant `tri-alignments` are loaded by checking the first tw
 Triples are essentially Tri-Alignment files, where `tri-alignments` are aggregated into genomic bins. 
 This not only reduces the disk (and memory) footprint, but also facilitates random-access. Considering the sparcity of the multi-contact data, most (if not all) multi-contact analyses are done in this "binned" space (rather than `alignment` space).
 
+## Installation
+You may run the following commands in your command line to install Triplix.
+```bash
+pip3 install triplix
+
+# or
+python3 -m pip install triplix
+```
+
 ## Usage:
 Below, you can see how you can extract data in each space.
 
@@ -168,11 +177,3 @@ print(df)
 # [136161 rows x 4 columns]
 ```
 
-## Installation
-Simply run the following command to install Triplix.
-```bash
-pip3 install triplix
-
-# or
-python3 -m pip install triplix
-```
