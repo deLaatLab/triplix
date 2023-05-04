@@ -9,7 +9,7 @@ build-backend = 'setuptools.build_meta'
 [project]
 name = 'triplix'
 version = '0.0.1'
-description = 'A python package to efficiently process, store and retrieve multi-contact data'
+description = 'A python package to efficiently process, store and retrieve spatial genomics multi-contact data'
 readme = 'README.md'
 authors = [{ name = 'Amin Allahyar', email = 'amin.allahyar@gmail.com' }]
 license = { file = 'LICENSE' }

@@ -1,4 +1,5 @@
 # Triplix
+A python package to efficiently process, store and retrieve spatial genomics multi-contact data.
 
 ## Introduction:
 Triplix provides access to multi-contact data, that could be stored in three different spaces (i.e., resolution): 
