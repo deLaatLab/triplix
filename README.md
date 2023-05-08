@@ -33,10 +33,9 @@ python3 -m pip install triplix
 ## Usage:
 Below, you can see how you can extract data in each space.
 
-#### 1. Concatemer space  (*.concatemers.h5)
-Provides random-access to read (i.e., `concatemer`) level data. 
-
-First, we open `concatemers` container via:
+### 1. Concatemer space  (*.concatemers.h5)
+Provides random-access to read (i.e., `Concatemer`) level data.
+In order to have access to the content of a `Concatemers` container, a handle should be initialized via:
 ```python
 import triplix
 
@@ -106,7 +105,22 @@ for idx, concatemer in enumerate(concatemers_iter):
 # 
 ```
 
-#### 2. Tri-alignment space (*.tri-alignments.tsv.bgz):
+#### Description of stored columns:
+  * `read_idx`: A Concatemer index (staring from 0). All alignments originating from a particular Concatemer (i.e. sequenced read) are annotated with an identical index.
+  * `chrom_num`: A numeric value for the chromosome that the current alignment is mapped to (e.g. `chr1`=1, `chr2`=2, etc.). 
+    The ordered list of chromosomes is available in the HDF5 container's attributes (i.e. `concatemers_container.h5_file['concatemers'].attrs['chrom_names']`)
+
+  * `start`: The first basepair that the alignment is mapped to in the reference genome
+  * `end`: The last basepair that the alignment is mapped to in the reference genome
+  * `strand`: The strand in which the alignment is mapped to
+  * `map_quality`: The mapping quality that is assigned by the mapper to this alignment. Note that mappers have a different range of mapping qualities (e.g. minimap2 may assign a value between [0 - 60], while bwa-sw assigns a value between [0 - 255])
+  * `flag`: A series of bit-wise flags. These bits are assigned by the mapper, following [SAM file specifications](https://doi.org/10.1093/gigascience/giab008).
+  * `seq_start`: The first nucleotide over the sequenced read from which the alignment is collected from. 
+  * `seq_end`: The last nucleotide over the sequenced read from which the alignment is collected from.
+  * `read_name`: The name of the sequenced read (aka. `read id`) that is defined by the sequence machine.
+  * `read_length`: Length of the read (in terms of basepairs) from which the alignment is originating from.
+
+### 2. Tri-alignment space (*.tri-alignments.tsv.bgz):
 Provides access to alignment (i.e., `tri-alignments`) level data. 
 These files are essentially formatted as compressed [pairix files](https://github.com/4dn-dcic/pairix). The difference is that they contain three coordinates instead of two coordinates (as is the case for regular pairix files)
 
@@ -150,7 +164,22 @@ for idx, tri_alignments in enumerate(tri_alignments_iter):
 
 ```
 
-#### 3. Triplet space (*.triplets.h5):
+#### Description of stored columns:
+In the column names below, the letter `X` refers to either `A`, `B` or `C`. 
+For example, by `chrom_X`, we state that each Tri-alignment contains `chrom_A`, `chrom_B` and `chrom_C` columns.
+ * `chrom_X`: The chromosome on which the alignment `X` is mapped to.
+ * `start_X`: The first basepair on which the alignment `X` is mapped to.
+ * `end_X`: The last basepair on which the alignment `X` is mapped to.
+ * `strand_X`: The strand on which the alignment `X` is mapped to.
+ * `mapq_X`: The mapping quality assigned by the aligner for alignment `X`.
+ * `frag_index_X`: An index that refers the order of the alignments collected from the read (sorted by their starting basepair relative to the read). For example, `frag_index_A`=1 indicates that this is the second alignment originating from the read.
+ * `read_name`: Name of Concatemer (i.e., sequenced read), as present in the `Concatemers` container.
+ * `read_length_nbp`: Length of the read in terms of basepairs.
+ * `read_length_nfrag`: Length of the read in terms of number of alignments.
+ * `experiment_name`: Name of the experiment, given by the user (or taken from the `Concatemers` filename).
+
+
+### 3. Triplet space (*.triplets.h5):
 Provides access to triplet-level data. A usage example is:
 
 ```python
@@ -181,4 +210,33 @@ print(df)
 # 
 # [136161 rows x 4 columns]
 ```
+
+#### Description of stored columns:
+ * `flag`: A set of binary flags (in the range of [0x0000 - 0xffff]) that specify a property of each triplet:
+   * `0x0000`: No flag is set. This is the default.
+   * `0x0001`: At least one of the anchors coordinate of the Triplet is located out of the chromosome length.
+   * `0x0002`: At least one column in the triplet has an `undefined` value.
+ * `start_X`: The starting basepair on which the anchor `A` is defined on.
+ * `start_B`: The starting basepair on which the anchor `B` is defined on.
+ * `start_C`: The starting basepair on which the anchor `C` is defined on.
+ * `distance_AB`, `distance_AC` and `distance_BC`: Distance (in terms of base pairs) between anchor `A-B`, `A-C` and `B-C`. 
+ * `count_A`, `count_B`, `count_C`: Number of alignments covering anchor `A`, `B` and `C` respectively. This is simply the 1D coverage track at anchor `A`, `B` and `C` respectively.
+ * `count_AB`, `count_AC`, `count_BC`: Number of pairwise contacts found between anchors `A-B`, `A-C` and `B-C`. This count is basically the number of interation found in a HiC representation of the multi-contact data.
+ * `count_ABC`: Number of times a 3-way contact is found between anchors `A-B-C`.
+ * The following columns are assigned after the `transformation` step of the Triplix pipeline:
+   + `observed_A`, `observed_B`, `observed_C`: The `counts_A`, `counts_B` or `counts_C` after performing the transformation. The default transformation is `Gaussian`, which smooths the counts in the 3D space of cube.
+   + `observed_AB`, `observed_AC`, `observed_BC`: The `count_AB`, `count_AC`, `count_BC` after performing the transformation.
+   + `observed_ABC`: The `count_ABC` after performing the transformation.
+ * Correction factors: The following columns are assigned after the `KDTree` construction and neighbor search steps of the Triplix pipeline. 
+   For the neighbor search, different factors could be considered to perform the neighbor search. For instance:
+   + `singletons`: Triplets are considered neighbors (i.e. similar), if they have similar 1D coverages across their anchors (i.e., `observed_A`, `observed_B` and `observed_C`) as well as similar pairwise anchor distances (i.e., `distance_AB`, `distance_AC` and `distance_BC`).
+   + `pairs`: Triplets are considered similar if their pairwise contacts are similar (i.e., `observed_AB`, `observed_AC` and `observed_BC`) as well as their pairwise anchor distances.
+   + `pairs_surround`: Triplets are similar if their pairwise contacts, pairwise anchor distances as well as their surrounding 3-way contacts (i.e., the `observed_ABC` of adjacent Triplets) are similar.
+ * Based on each correction factors, several statistics are estimated. For example, in case the `pairs` correction factor is chosen:
+   + `pairs.neighbors_distance_med`: The median of the K-neighbors Euclidean distance to the current triplet, in the high-dimensional space of the constructed KDTree.
+   + `pairs.neighbors_distance_std`: The standard deviation of the K-neighbors Euclidean distance to the current triplet, in the high-dimensional space of the constructed KDTree.
+   + `pairs.neighbors_expected_avg`: The average of `observed_ABC` across the identified similar triplets (i.e., neighbors).
+   + `pairs.neighbors_expected_std`: The standard deviation of `observed_ABC` across the identified similar triplets (i.e., neighbors).
+   + `pairs.enrichment`: The enrichment score calculated after comparing the observed and expected number of 3-way contacts (i.e., `observed_ABC` vs. `pairs.neighbors_expected_avg`) while considering the standard deviation of these observations (i.e., `pairs.neighbors_expected_std`)
+
 
