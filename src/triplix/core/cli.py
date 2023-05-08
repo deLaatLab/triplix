@@ -15,7 +15,7 @@ from triplix.core import plot
 logger = logging.getLogger(__name__)
 
 
-def cli_concatemer(cli_args):
+def cli_concatemers(cli_args):
     exporter = concatemers.ExporterHDF5(
         bam_path=cli_args.input,
         assembly=cli_args.assembly,
@@ -30,7 +30,7 @@ def cli_concatemer(cli_args):
     exporter.store_concatemers()
 
 
-def cli_tri_alignment(cli_args):
+def cli_tri_alignments(cli_args):
     extractor = tri_alignment.extract.TriAlignmentExtractor(
         concatemers_path=cli_args.input,
         output_dir=cli_args.output_dir,
@@ -274,78 +274,78 @@ def parse_cli_arguments():
 
     #########################################
     # forming concatemers
-    parser_concatemer = commands.add_parser('concatemer', help='Parse input BAM file and extract concatemer')
-    optional = parser_concatemer._action_groups.pop()
-    required = parser_concatemer.add_argument_group('required arguments')
+    parser_concatemers = commands.add_parser('concatemers', help='Parse input BAM file and extract Concatemers')
+    optional = parser_concatemers._action_groups.pop()
+    required = parser_concatemers.add_argument_group('required arguments')
     required.add_argument('--input', required=True, metavar='<PATH>', help='Path to the input BAM file. The BAM file should be sorted by `read name` (i.e., using `samtools sort -n`)')
     optional.add_argument('--assembly', default='unknown', metavar='<STRING>', help='Name of the assembly (or genome) such as `hg19`, `hg38`, `mm10`, etc. (default: %(default)s)')
     optional.add_argument('--output_dir', default='./concatemers/', metavar='<PATH>',
-                          help='Output directory where the output concatemer file (.concatemers.h5) will be stored (default: %(default)s)')
+                          help='Output directory where the output Concatemers file (.concatemers.h5) will be stored (default: %(default)s)')
     optional.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                          help='Output concatemer file name. If not provided, the `experiment_name` is used with an added `.concatemers.h5` extension')
+                          help='Output Concatemers file name. If not provided, the `experiment_name` is used with an added `.concatemers.h5` extension')
     optional.add_argument('--assume_sorted', action='store_true', help='Disables the name-sort check and assumes that the input BAM file is name sorted (default: %(default)s)')
     optional.add_argument('--cell_type', default='unknown', metavar='<STRING>', help='Name of the cell-type that is used to produce the current experiment (default: %(default)s)')
     optional.add_argument('--assay_name', default='unknown', metavar='<STRING>', help='Name of the assay that is used to produce the current experiment (default: %(default)s)')
     optional.add_argument('--experiment_name', default=None, metavar='<STRING>', help='A name for the current experiment. If not provided, the input BAM filename will be used as the `--experiment_name` instead.')
-    parser_concatemer._action_groups.append(optional)
-    parser_concatemer.set_defaults(func=cli_concatemer)
+    parser_concatemers._action_groups.append(optional)
+    parser_concatemers.set_defaults(func=cli_concatemers)
 
     #########################################
     # extracting tri-alignments
-    parser_triplet = commands.add_parser('tri_alignment', help='Process a concatemer file (.concatemers.h5) and extract tri-alignments from it')
-    parser_triplet.add_argument('--input', required=True, metavar='<PATH>', help='Path to input concatemer file (e.g. `*.concatemers.h5`)')
-    parser_triplet.add_argument('--output_dir', default='./tri-alignments/', metavar='<PATH>',
-                                help='Output directory where the extracted triplet will be stored (default: %(default)s)')
-    parser_triplet.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                                help='Output file name for the extracted triplet. If not provided, the output is stored using the input triplet file name, with a `.trp` extension')
-    parser_triplet.set_defaults(func=cli_tri_alignment)
+    parser_tri_alignments = commands.add_parser('tri_alignments', help='Process a Concatemers file (.concatemers.h5) and extract Tri-alignments from it')
+    parser_tri_alignments.add_argument('--input', required=True, metavar='<PATH>', help='Path to input Concatemers file (e.g. `*.concatemers.h5`)')
+    parser_tri_alignments.add_argument('--output_dir', default='./tri-alignments/', metavar='<PATH>',
+                                       help='Output directory where the extracted Tri-alignments will be stored (default: %(default)s)')
+    parser_tri_alignments.add_argument('--output_name', default=None, metavar='<FILENAME>',
+                                       help='Output file name for the extracted Tri-alignments. If not provided, the output is stored using the input Concatemers file name, with a `.tri-alignments.tsv.bgz` extension')
+    parser_tri_alignments.set_defaults(func=cli_tri_alignments)
 
     #########################################
-    # sorting triplet
-    parser_sort = commands.add_parser('sort', help='Sort a tri-alignment file according to the chromosomal positions of its tri-alignments anchors.')
-    parser_sort.add_argument('--input', required=True, metavar='<PATH>', help='Path to tri-alignment file (e.g. `*.trp`)')
+    # sorting tri-alignments
+    parser_sort = commands.add_parser('sort', help='Sort a Tri-alignments file according to the chromosomal positions of its Tri-alignments anchors.')
+    parser_sort.add_argument('--input', required=True, metavar='<PATH>', help='Path to Tri-alignments file (e.g. `*.tri-alignments.tsv.bgz`)')
     parser_sort.add_argument('--output_dir', default='./tri-alignments_sorted', metavar='<PATH>',
-                             help='Output directory where the sorted tri-alignment will be stored (default: %(default)s)')
+                             help='Output directory where the sorted Tri-alignments file will be stored (default: %(default)s)')
     parser_sort.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                             help='Output file name for the sorted tri-alignments. If not provided, the output is stored using the input tri-alignment filename, with a `.sorted.trp` extension')
+                             help='Output name for the sorted Tri-alignments file. If not provided, the output is stored using the input Tri-alignments filename, with a `.sorted.tri-alignments.tsv.bgz` extension')
     parser_sort.add_argument('--memory', default='2G', metavar='<FLOAT>G', help='Amount of memory (in Gigabyte, or another supported size unit) that can be used by `sort` program (default: "%(default)s")')
     parser_sort.add_argument('--threads', default=1, type=int, metavar='<INTEGER>', help='Number of threads that can be used by `sort` program (default: "%(default)s")')
     parser_sort.set_defaults(func=cli_sort)
 
     #########################################
-    # merging triplet
-    parser_merge = commands.add_parser('merge', help='Merge a series of tri-alignment files')
-    parser_merge.add_argument('--input', required=True, metavar='<PATH>[,<PATH>]', help='A comma-separated list of paths to tri-alignment files (e.g. `*.trp`). Each PATH can be a pattern that contain `*` to match several files.')
+    # merging tri-alignments
+    parser_merge = commands.add_parser('merge', help='Merge a series of Tri-alignments files')
+    parser_merge.add_argument('--input', required=True, metavar='<PATH>[,<PATH>]', help='A comma-separated list of paths to Tri-alignments files (e.g. `*.tri-alignments.tsv.bgz`). Each PATH can be a pattern that contain `*` to match several files.')
     parser_merge.add_argument('--output_dir', default='./tri-alignments_merged/', metavar='<PATH>',
                               help='Output directory where the merged triplet will be stored (default: %(default)s)')
     parser_merge.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                              help='Output file name for the merged triplet. If not provided, the output is stored using the first input tri-alignment filename, with a `.merged.trp` extension')
+                              help='Output file name for the merged Tri-alignments. If not provided, the output is stored using the first input Tri-alignments filename, with a `.merged.tri-alignments.tsv.bgz` extension')
     parser_merge.add_argument('--memory', default='2G', help='Amount of memory (in Gigabyte unit) that can be used by `merge` program (default: "%(default)s")')
     parser_merge.add_argument('--threads', default=4, type=int, metavar='<INTEGER>', help='Number of threads that can be used by `sort` program (default: "%(default)s")')
-    parser_merge.add_argument('--concatenate', action="store_true", help='Perform a simple concatenation of tri-alignment files instead of merging files in a sorted manner')
+    parser_merge.add_argument('--concatenate', action="store_true", help='Perform a simple concatenation of Tri-alignments files instead of merging files in a sorted manner')
     parser_merge.add_argument('--check_coverage', action="store_true", help='Checks whether merging chunks are overlapping, or if a chromosomal region is not covered by any chunk')
     parser_merge.add_argument('--sort_by', choices=['none', 'chrom'], default='chrom',
                               help='Sort the input files before merge/concatenation. `none` ignores sorting. `chrom` sorts files by the order of chromosomes in the original BAM file (default: "%(default)s")')
     # todo: add possibility to update the header/meta-data of the merged dataset, e.g. experiment_name
     # todo: implement a better header merger. Then remove this flag
     parser_merge.add_argument('--ignore_samheaders', action="store_true", help='Ignores merging sam headers.')
-    parser_merge.add_argument('--metadata', default=None, metavar='<STRING>:<STRING>,[...]', help='A comma-separated list of key:values to be stored as the container\'s attributes such as experiment or assay name')
+    parser_merge.add_argument('--metadata', default=None, metavar='<STRING>:<STRING>,[...]', help='A comma-separated list of key:values to be stored in the Tri-alignments file header such as experiment or assay name')
     parser_merge.set_defaults(func=cli_merge)
 
     #########################################
-    # indexing triplet
+    # indexing tri-alignments
     parser_index = commands.add_parser('index', help='Index a tri-alignment file')
-    parser_index.add_argument('--input', required=True, metavar='<PATH>', help='Path to tri-alignment file (e.g. `*.trp`). The index will be stored besides the input tri-alignment file.')
+    parser_index.add_argument('--input', required=True, metavar='<PATH>', help='Path to a Tri-alignments file (e.g. `*.tri-alignments.tsv.bgz`). The index will be stored besides the input Tri-alignments file')
     parser_index.set_defaults(func=cli_index)
 
     #########################################
-    # partition triplets into bins
-    parser_bin = commands.add_parser('bin', help='Discretize the genome into equally-spaced anchors (i.e., bins) and represent the interactions in terms of triplets.')
-    parser_bin.add_argument('--input', required=True, metavar='<PATH>', help='Path to input tri-alignment file (e.g. `*.trp`).')
+    # mapping tri-alignments into bins
+    parser_bin = commands.add_parser('bin', help='Discretize the genome into equally-spaced anchors (i.e., bins) and represent the interactions in terms of Triplets')
+    parser_bin.add_argument('--input', required=True, metavar='<PATH>', help='Path to input Tri-alignments file (e.g. `*.tri-alignments.tsv.bgz`).')
     parser_bin.add_argument('--output_dir', default='./triplets/', metavar='<PATH>',
-                            help='Output directory where the triplet file will be stored (default: %(default)s)')
+                            help='Output directory where the Triplets file will be stored (default: %(default)s)')
     parser_bin.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                            help='Output file name for the triplets. If not provided, the output is stored using the input tri-alignment filename, with a `.trpl` extension.')
+                            help='Output name for the Triplets file. If not provided, the output is stored using the input Tri-alignments file name, with a `.triplets.h5` extension')
     parser_bin.add_argument('--chunk_chrom', required=True, metavar='<STRING>', help='Name of the chromosome from which triplet are formed')
     parser_bin.add_argument('--chunk_start', required=True, type=float, metavar='<INTEGER>', help='Start position of the chunk from which triplets are formed')
     parser_bin.add_argument('--chunk_end', required=True, type=float, metavar='<INTEGER>', help='End position of the chunk from which triplets are formed')
@@ -357,7 +357,7 @@ def parse_cli_arguments():
     #########################################
     # transform triplet counts
     parser_transform = commands.add_parser('transform', help='Transform the raw counts using the requested transformation.')
-    parser_transform.add_argument('--input', required=True, metavar='<PATH>', help='Path to triplet file (e.g. `*.trpl`). This file needs to be indexed.')
+    parser_transform.add_argument('--input', required=True, metavar='<PATH>', help='Path to Triplets file (e.g. `*.triplets.h5`). This file needs to be indexed.')
     parser_transform.add_argument('--transform_name', choices=['Gaussian'], default='Gaussian', help='Transformation name')
     parser_transform.add_argument('--transform_params', default='{"kernel_width":15,"kernel_scale":1.0}', help='JSON-formatted parameters of the transformation (default: "%(default)s")')
     parser_transform.add_argument('--transform_label', default='observed', metavar='<STRING>', help='Each transformed column will be labeled using this parameter (default: "%(default)s")')
@@ -370,12 +370,12 @@ def parse_cli_arguments():
 
     #########################################
     # finding neighbors
-    parser_findnei = commands.add_parser('kdtree', help='Construct a KDTree structure to efficiently find triplet neighbors.')
-    parser_findnei.add_argument('--input', required=True, metavar='<PATH>', help='Path to Triplet file (e.g. `*.trpl`).')
+    parser_findnei = commands.add_parser('kdtree', help='Construct a KDTree structure to efficiently find Triplet neighbors.')
+    parser_findnei.add_argument('--input', required=True, metavar='<PATH>', help='Path to Triplets file (e.g. `*.triplets.h5`).')
     parser_findnei.add_argument('--output_dir', default='./kdtrees/', metavar='<PATH>',
                                 help='Output directory where the KDTree will be stored (default: %(default)s)')
     parser_findnei.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                                help='Output file name for the KDTree. If not provided, the output is stored using the input Triplet filename, with a `.kdtree.joblib` extension.')
+                                help='Output file name for the KDTree. If not provided, the output is stored using the input Triplets filename, with a `.kdtree.joblib` extension.')
     parser_findnei.add_argument('--chroms', metavar='STRING[,STRING]', default=None, help='A comma-separated list of chromosome names to be used in KDTree construction. If not provided, all chromosomes will be used.')
     parser_findnei.add_argument('--factors', required=True, metavar='<PATH>|<COL>:<FUNC>[,<COL>:<FUNC>]', help='Path to correction factor definitions, or a comma-separated list of <column_name>:<normalization>')
     parser_findnei.add_argument('--target', required=True, default='observed_ABC', metavar='<STRING>', help='Name of the column to be used as "target", in the background model  (default: "%(default)s")')
@@ -385,8 +385,8 @@ def parse_cli_arguments():
     #########################################
     # estimate enrichments
     parser_enrich = commands.add_parser('enrichment', help='Estimate the enrichments of (a chunk of) triplet.')
-    parser_enrich.add_argument('--input', required=True, metavar='<PATH>', help='Path to triplet file (e.g. `*.trpl`).')
-    parser_enrich.add_argument('--kdtree', required=True, metavar='<PATH>', help='Path to KDTree, constructed from the input triplet file.')
+    parser_enrich.add_argument('--input', required=True, metavar='<PATH>', help='Path to Triplets file (e.g. `*.triplets.h5`).')
+    parser_enrich.add_argument('--kdtree', required=True, metavar='<PATH>', help='Path to KDTree, constructed from the input Triplets file.')
     parser_enrich.add_argument('--chunk_chrom', required=True, metavar='<STRING>', help='Name of the chromosome from which the triplets are going to be collected')
     parser_enrich.add_argument('--chunk_start', required=True, type=float, metavar='<INTEGER>', help='Start position of the chunk from which the triplets are going to be collected')
     parser_enrich.add_argument('--chunk_end', required=True, type=float, metavar='<INTEGER>', help='End position of the chunk from which the triplets are going to be collected')
@@ -405,7 +405,9 @@ def parse_cli_arguments():
     # plotting virtual-hic
     parser_virthic = command_plot.add_parser('virtual_hic', help='Generate a virtual HiC plot, depicting the requested columns (using `--columns`).')
     parser_virthic.add_argument('--input', required=True, metavar='<PATH>',
-                                help='Path to input file. Multiple paths could be provided using comma-separated format. Wild chars (i.e., "*") are also supported. The input file could be a BAM, tri-alignment, or triplets file. In case of BAM or tri-alignment, the file  needs to be indexed.')
+                                help='Path to input file. Multiple paths could be provided using comma-separated format. '
+                                     + 'Wild chars (i.e., "*") are also supported. The input file could be a BAM, tri-alignment, or triplets file. '
+                                     + 'In case of BAM or tri-alignment, the file  needs to be indexed.')
     parser_virthic.add_argument('--output_dir', default='./plots/', metavar='<PATH>',
                                 help='Output directory where the plot will be stored (default: %(default)s)')
     parser_virthic.add_argument('--output_name', default=None, metavar='<FILENAME>',
@@ -438,7 +440,7 @@ def parse_cli_arguments():
 
     # plotting processing history
     parser_proc_hist = command_plot.add_parser('processing_history', help='Plot the processing history of the given input file.')
-    parser_proc_hist.add_argument('--input', required=True, metavar='<PATH>', help='Path to concatemer, triplet or bin-triplet file.')
+    parser_proc_hist.add_argument('--input', required=True, metavar='<PATH>', help='Path to Concatemers, Tri-alignments or Triplets file.')
     parser_proc_hist.add_argument('--output_dir', default='./plots/', metavar='<PATH>',
                                   help='Output directory where the plot will be stored (default: %(default)s)')
     parser_proc_hist.add_argument('--output_name', default=None, metavar='<FILENAME>',
@@ -448,7 +450,7 @@ def parse_cli_arguments():
 
     # plotting read length histogram
     parser_hist_read_len = command_plot.add_parser('read_length', help='Plot the read length histogram of concatemers stored in the input file.')
-    parser_hist_read_len.add_argument('--input', required=True, metavar='<PATH>', help='Path to concatemer file.')
+    parser_hist_read_len.add_argument('--input', required=True, metavar='<PATH>', help='Path to Concatemers file.')
     parser_hist_read_len.add_argument('--output_dir', default='./plots/', metavar='<PATH>',
                                       help='Output directory where the plot will be stored (default: %(default)s)')
     parser_hist_read_len.add_argument('--output_name', default=None, metavar='<FILENAME>',
@@ -457,7 +459,7 @@ def parse_cli_arguments():
 
     # plotting alignment length histogram
     parser_hist_aln_len = command_plot.add_parser('alignment_length', help='Plot the alignment length histogram of concatemers stored in the input file.')
-    parser_hist_aln_len.add_argument('--input', required=True, metavar='<PATH>', help='Path to concatemer file.')
+    parser_hist_aln_len.add_argument('--input', required=True, metavar='<PATH>', help='Path to Concatemers file.')
     parser_hist_aln_len.add_argument('--output_dir', default='./plots/', metavar='<PATH>',
                                      help='Output directory where the plot will be stored (default: %(default)s)')
     parser_hist_aln_len.add_argument('--output_name', default=None, metavar='<FILENAME>',
@@ -474,12 +476,12 @@ def parse_cli_arguments():
         dest='analysis',
     )
 
-    parser_decay = command_stat.add_parser('decay', help='Calculates decay stats for a given Concatemer file.')
-    parser_decay.add_argument('--input', required=True, metavar='<PATH>', help='Path to input Concatemer file (e.g. `*.concatemers.h5`).')
+    parser_decay = command_stat.add_parser('decay', help='Calculates decay stats for a given Concatemers file.')
+    parser_decay.add_argument('--input', required=True, metavar='<PATH>', help='Path to input Concatemers file (e.g. `*.concatemers.h5`).')
     parser_decay.add_argument('--output_dir', default='./stats/', metavar='<PATH>',
                               help='Output directory where the stats will be stored (default: %(default)s)')
     parser_decay.add_argument('--output_name', default=None, metavar='<FILENAME>',
-                              help='Output file name. If not provided, the output is stored using the input Concatemer filename, with a `.tsv` extension.')
+                              help='Output file name. If not provided, the output is stored using the input Concatemers filename, with a `.tsv` extension.')
     parser_decay.set_defaults(func=cli_stat_decay)
 
     # processing CLI input arguments

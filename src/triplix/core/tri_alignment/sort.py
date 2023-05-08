@@ -24,7 +24,7 @@ class TriAlignmentSorter:
         if output_dir is None:
             output_dir = self.trialign_path.parent
         if output_name is None:
-            output_name = self.trialign_path.stem + '.sorted.3aln'
+            output_name = self.trialign_path.stem + '.sorted.tri-alignments.tsv.bgz'
         self.output_path = pathlib.Path(output_dir).expanduser() / output_name
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
         if self.output_path.is_file():

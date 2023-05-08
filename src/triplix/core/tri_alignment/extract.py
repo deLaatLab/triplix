@@ -1,4 +1,4 @@
-# todo: add an argument to ignore adding triplet that are overlapping each other within a read
+# todo: add an argument to ignore adding Triplets that are overlapping with each other within a read
 
 
 import gzip
@@ -36,7 +36,7 @@ class TriAlignmentExtractor:
         if output_dir is None:
             output_dir = self.concatemers_path.parent
         if output_name is None:
-            output_name = str(self.concatemers_path.name).replace('.concatemers.h5', '') + '.3aln'
+            output_name = str(self.concatemers_path.name).replace('.concatemers.h5', '') + '.tri-alignments.tsv.bgz'
         self.output_path = pathlib.Path(output_dir).expanduser() / output_name
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -47,7 +47,7 @@ class TriAlignmentExtractor:
         for chrom in self.header.chrom_lengths.keys():
             if chrom == 'unmapped':
                 continue
-            output_path = str(self.output_path).replace('.3aln', f'.{chrom}.3aln')
+            output_path = str(self.output_path).replace('.tri-alignments.tsv.bgz', f'.{chrom}.tri-alignments.tsv.bgz')
             logger.debug(f'Initializing output file: {output_path}')
             output_files[chrom] = gzip.open(output_path, 'wt', compresslevel=3)
 

@@ -1,7 +1,6 @@
 import time
 import pathlib
 import logging
-from collections import deque
 
 import numpy as np
 
@@ -9,7 +8,7 @@ from triplix.core.triplets import TripletsContainer, Triplets
 from triplix.core.header import TriplixHeader
 from triplix.core import configurations
 from triplix.core.tri_alignments import TriAlignmentsContainer
-from triplix.core.utilities import generate_prog_id, merge_intervals
+from triplix.core.utilities import generate_prog_id
 
 COMMAND_NAME = 'triplix.bin'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
@@ -39,7 +38,7 @@ class TriAlignmentBinner:
         if output_dir is None:
             output_dir = self.input_path.parent
         if output_name is None:
-            output_name = self.header.experiment_name + '.trpl'
+            output_name = self.header.experiment_name + '.triplets.h5'
         self.output_path = pathlib.Path(output_dir).expanduser() / output_name
         self.output_path.parent.mkdir(parents=True, exist_ok=True)
 

@@ -1,4 +1,8 @@
 # Triplix
+[![PyPI version](https://badge.fury.io/py/triplix.svg)](https://badge.fury.io/py/triplix)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/triplix.svg)
+[![MIT](https://img.shields.io/pypi/l/triplix.svg?color=green)](https://opensource.org/licenses/MIT)
+
 A python package to efficiently process, store and retrieve spatial genomics multi-contact data.
 
 ## Introduction:
@@ -7,14 +11,14 @@ Triplix provides access to multi-contact data, that could be stored in three dif
 Each row in this table is an alignment that is captured by a particular `concatemer` (i.e., a sequenced long `read`). 
 There is an index (i.e., `read_idx`) column in this table that specifies alignments that originate from each specific `concatemer`.
 
-2. **Tri-Alignments**:
-Every possible three cis-alignments of each `concatemer` is stored in the Tri-Alignment file. Each three cis-alignment is called a `tri-alignment`. 
+2. **Tri-alignments**:
+Every possible three cis-alignments of each `concatemer` is stored in the Tri-alignment file. Each three cis-alignment is called a `tri-alignment`. 
 Such a data structure facilitates 3-way interaction analyses, and allow random-access. 
 To this end, `Triplix` has a simple wrapper around [pairix](https://github.com/4dn-dcic/pairix).
 In particular, the relevant `tri-alignments` are loaded by checking the first two given coordinates using `pairix`, and then filtering for the third coordinate via an ordinary overlap check.
 
 3. **Triplets**:
-Triples are essentially Tri-Alignment files, where `tri-alignments` are aggregated into genomic bins. 
+Triples are essentially Tri-alignment files, where `tri-alignments` are aggregated into genomic bins. 
 This not only reduces the disk (and memory) footprint, but also facilitates random-access. Considering the sparcity of the multi-contact data, most (if not all) multi-contact analyses are done in this "binned" space (rather than `alignment` space).
 
 ## Installation
@@ -102,18 +106,18 @@ for idx, concatemer in enumerate(concatemers_iter):
 # 
 ```
 
-#### 2. Tri-Alignment space (*.3ln):
-Provides access to alignment (i.e., `tri-alignment`) level data. 
+#### 2. Tri-alignment space (*.tri-alignments.tsv.bgz):
+Provides access to alignment (i.e., `tri-alignments`) level data. 
 These files are essentially formatted as compressed [pairix files](https://github.com/4dn-dcic/pairix). The difference is that they contain three coordinates instead of two coordinates (as is the case for regular pairix files)
 
-> **Note:** The tri-alignment files need to be indexed if you like to have random access to them. You can do this using `triplix index --input=input-file.3aln`
+> **Note:** The tri-alignment files need to be indexed if you like to have random access to them. You can do this using `triplix index --input=input-file.tri-alignments.tsv.bgz`
 
 An example of this usage is as follows:
 
 ```python
 import triplix
 
-tri_aln_path = './tri-alignments/GM12878.Merged.3aln'
+tri_aln_path = './tri-alignments/GM12878.Merged.tri-alignments.tsv.bgz'
 tri_container = triplix.TriAlignmentsContainer(trialn_path=tri_aln_path)
 
 tri_alignments_iter = tri_container.fetch(chrom_a='chrY', start_a=0e6, end_a=10e6, batch_size=10)
@@ -146,14 +150,14 @@ for idx, tri_alignments in enumerate(tri_alignments_iter):
 
 ```
 
-#### 3. Triplet space (*.trpl):
+#### 3. Triplet space (*.triplets.h5):
 Provides access to triplet-level data. A usage example is:
 
 ```python
 import pandas as pd
 import triplix
 
-trpl_path = './triplets/GM12878.MC-HiC.hg38.trpl'
+trpl_path = './triplets/GM12878.MC-HiC.hg38.triplets.h5'
 trpl_obj = triplix.TripletsContainer(container_path=trpl_path)
 triplets_input = trpl_obj.fetch(
     chrom_a='chr8', start_a=119e6, end_a=120e6,

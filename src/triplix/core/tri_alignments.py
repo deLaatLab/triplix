@@ -40,7 +40,7 @@ class TriAlignments(dict):
 
     def __repr__(self):
         if 'start_A' not in self:
-            return '<Miss-formatted Tri-Alignments>: Missing `start_A` column'
+            return '<Miss-formatted Tri-alignments>: Missing `start_A` column'
 
         n_row = len(self['start_A'])
         n_show = self.options['display.min_rows']
@@ -53,7 +53,7 @@ class TriAlignments(dict):
             show_df.loc[n_show, :] = '***'
             show_df.index = show_df.index.astype(str)
             show_df.rename({str(n_show): '***'}, axis=0, inplace=True)
-        return '<Tri-Alignments>:\n' + repr(show_df)
+        return '<Tri-alignments>:\n' + repr(show_df)
 
     def __len__(self):
         for column in self.keys():
@@ -189,7 +189,7 @@ class TriAlignmentsContainer:
                 start_idxs = np.searchsorted(anchor_edges, tri_alignments['start_C'], side='right') - 1
                 end_idxs = np.searchsorted(anchor_edges, tri_alignments['end_C'], side='right') - 1
 
-                # make sure each read contributes only once to each triplet
+                # make sure each read contributes only once to each Triplet
                 seen_ids = [set() for _ in range(n_anchor)]
                 for start_idx, end_idx, read_id in zip(start_idxs, end_idxs, tri_alignments['read_name']):
                     for ak in range(start_idx, end_idx + 1):
@@ -295,7 +295,7 @@ class TriAlignmentIterator:
         if self.EOF:
             raise StopIteration()
 
-        # initialize a Tri-Alignments container
+        # initialize a Tri-alignments container
         tri_alignments = TriAlignments()
         for col in self.return_columns:
             tri_alignments[col] = []

@@ -185,7 +185,7 @@ class GaussianSmoother:
         ]
         triplets_output = Triplets(columns=triplet_columns)
 
-        # storing bin-triplet counts
+        # storing Triplets counts
         logger.log_time = 0
         n_store = 0
         for ai in range(n_anchor):

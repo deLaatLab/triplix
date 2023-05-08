@@ -261,7 +261,7 @@ def plot_virtual_hic(
             logger.info(f'\t{n_contact:,d} contacts are stored, and {n_dup:,d} are ignored due to duplicity.')
 
         # tri-alignment input
-        elif input_path.suffix in ['.3aln', '.btrp']:
+        elif input_path.suffix in ['.tri-alignments.tsv.bgz', '.btrp']:
             logger.info(f'Loading tri-alignments from: {input_path}')
             tri_alignments_obj = TriAlignmentsContainer(trialn_path=input_path)
 
@@ -308,7 +308,7 @@ def plot_virtual_hic(
                 images[col_name][has_value] = 0
                 images[col_name][has_value] += cubes[col_name][vp_bdx][has_value]
 
-        elif input_path.suffix == '.trpl':
+        elif input_path.suffix == '.triplets.h5':
             logger.info(f'Loading triplets from: {input_path}')
 
             # prepare Triplets object
@@ -603,7 +603,7 @@ def plot_hic(
                                         images['count_AB'][ovl_i, ovl_j] = 0
                                         images['count_AB'][ovl_j, ovl_i] = 0
 
-                                # ignore if the read has contributed to the current bin-triplet
+                                # ignore, if the read has already contributed to the current triplet
                                 if read_id in seen_ids[pair_id]:
                                     n_dup += 1
                                     continue

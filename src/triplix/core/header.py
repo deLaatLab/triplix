@@ -348,7 +348,7 @@ class TriplixHeader:
                     'read_name', 'read_length_nbp', 'read_length_nfrag',
                     'experiment_name',
                 ]
-        elif self.file_path.endswith(('.3aln', '.btrp')):
+        elif self.file_path.endswith(('.tri-alignments.tsv.bgz', '.btrp')):
             with gzip.open(self.file_path, 'rt') as gz_file:
 
                 # get file type
@@ -395,7 +395,7 @@ class TriplixHeader:
                     if attr_name == 'column_names':
                         break
             self.process_history = ProcessHistoryDAG(sam_headers)
-        elif self.file_path.endswith('.trpl'):
+        elif self.file_path.endswith('.triplets.h5'):
             with HDF5Container(self.file_path, mode='r', exclusive=self.exclusive) as container:
                 expr_grp = container.h5_file['experiments']
                 self.experiment_name = list(expr_grp.keys())[0]

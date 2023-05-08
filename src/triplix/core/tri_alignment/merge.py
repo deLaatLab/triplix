@@ -26,7 +26,7 @@ class TripletMerger:
         operation_str = 'concatenated' if self.concatenate_only else 'merged'
 
         # collecting of input files details
-        logger.info('Collecting triplet headers ...')
+        logger.info('Collecting Triplets headers ...')
         self.input_files = []
         for pattern in input_patterns.split(','):
             pattern = str(pathlib.Path(pattern).expanduser())
