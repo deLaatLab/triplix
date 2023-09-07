@@ -308,7 +308,7 @@ def plot_virtual_hic(
                 images[col_name][has_value] = 0
                 images[col_name][has_value] += cubes[col_name][vp_bdx][has_value]
 
-        elif input_path.suffix == '.triplets.h5':
+        elif str(input_path).endswith('.triplets.h5'):
             logger.info(f'Loading triplets from: {input_path}')
 
             # prepare Triplets object

@@ -188,11 +188,11 @@ import triplix
 
 trpl_path = './triplets/GM12878.MC-HiC.hg38.triplets.h5'
 trpl_obj = triplix.TripletsContainer(container_path=trpl_path)
-triplets_input = trpl_obj.fetch(
+triplets = trpl_obj.fetch(
     chrom_a='chr8', start_a=119e6, end_a=120e6,
     columns=['start_A', 'start_B', 'start_C', 'count_ABC'],
 )
-df = pd.DataFrame(triplets_input)
+df = pd.DataFrame(triplets)
 print(df)
 # output:
 #           start_A    start_B    start_C  count_ABC
@@ -210,6 +210,34 @@ print(df)
 # 
 # [136161 rows x 4 columns]
 ```
+
+Alternatively, you may iterate over stored [chunks](https://docs.h5py.org/en/stable/high/dataset.html#chunked-storage) of triplets as follows:
+```python
+for triplets in trpl_obj.iter_chunks():
+  print(triplets)
+#        flag  start_A  start_B  start_C  distance_AB  ...
+# 0         0        0        0        0            0  ...
+# 1         0        0        0    25000            0  ...
+# 2         0        0        0    50000            0  ...
+# 3         0        0        0    75000            0  ...
+# 4         0        0        0   100000            0  ...
+# ...     ...      ...      ...      ...          ...  ...
+```
+This will iterate over all stored triplets, chunk by chunk. 
+In addition, you can limit the chromosomes or columns that are retured (to improve load speed). This can be done as follows:
+```python
+for current_chromosome, triplets in trpl_obj.iter_chunks(chroms=['chr3'], columns=['start_A', 'start_B', 'start_C']):
+  print(current_chromosome, triplets)
+# chr3 Triplets <50000 x 3>:
+#       start_A start_B  start_C
+# 0           0       0        0
+# 1           0       0    25000
+# 2           0       0    50000
+# 3           0       0    75000
+# 4           0       0   100000
+# ***       ***     ***      ***
+```
+Note that the `.iter_chunks()` function returns a tuple of `(current_chromosome, triplets)`.
 
 #### Description of stored columns:
  * `flag`: A set of binary flags (in the range of [0x0000 - 0xffff]) that specify a property of each triplet:

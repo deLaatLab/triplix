@@ -8,7 +8,7 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = 'triplix'
-version = '0.0.2'
+version = '0.0.3'
 description = 'A python package to efficiently process, store and retrieve spatial genomics multi-contact data'
 readme = 'README.md'
 authors = [{ name = 'Amin Allahyar', email = 'amin.allahyar@gmail.com' }]
@@ -23,7 +23,7 @@ dependencies = [
     'numpy >= 1.22.2',
     'pandas >= 1.5.1',
     'matplotlib >= 3.5.1',
-    'pysam >= 0.19.1',
+    'pysam >= 0.21.0',
     'h5py >= 3.7.0',
     'joblib >= 1.1.0',
     'scipy >= 1.7.3',

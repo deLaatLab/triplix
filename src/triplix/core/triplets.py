@@ -37,11 +37,14 @@ class Triplets(dict):
             self[column] = []
 
     def __repr__(self):
-        if 'start_A' not in self:
-            return '<Miss-formatted Triplets>: Missing `start_A` column'
+        # if 'start_A' not in self:
+            # return '<Miss-formatted Triplets>: Missing `start_A` column'
         n_row = len(self)
+        if n_row == 0:
+            return f'--- Empty Triplets ---'
+        
         n_show = self.options['display.min_rows']
-        if n_row == 0 or n_row <= n_show:
+        if n_row <= n_show:
             show_df = pd.DataFrame(self).astype(str)
         else:
             show_idxs = list(range(0, n_show + 1)) + list(range(n_row - n_show, n_row))
@@ -50,11 +53,12 @@ class Triplets(dict):
             show_df.loc[n_show, :] = '***'
             show_df.index = show_df.index.astype(str)
             show_df.rename({str(n_show): '***'}, axis=0, inplace=True)
-        return '<Triplets>:\n' + repr(show_df)
+        return f'Triplets <{n_row} x {len(self.keys())}>:\n' + repr(show_df)
 
     def __len__(self):
         for column in self.keys():
             return len(self[column])
+        return 0
 
     def __getitem__(self, pointer: Union[str, slice, int, Iterable]):
         if isinstance(pointer, str):  # we are requesting a key/column of the parent dict object
@@ -219,11 +223,45 @@ class TripletsContainer:
 
     def __enter__(self):
         return self
-
+    
     def __exit__(self, exception_type, exception_value, exception_traceback):
         if self.exclusive:
             self.unlock()
+    
+    def iter_chunks(self, chroms=None, columns=None):
+        if chroms is None:
+            chroms = self.properties['chrom_names']
+        if columns is None:
+            columns = self.properties['columns_order']
+        if not isinstance(chroms, list):
+            chroms = [chroms]
+        if not isinstance(columns, list):
+            columns = [columns]
 
+        with HDF5Container(self.container_path, mode='r', exclusive=False) as container:
+            for chrom in chroms:
+                cis_path = f'{self.experiment_path}/contacts/triplets/{chrom},{chrom},{chrom}'
+                if cis_path not in container.h5_file:
+                    continue
+                
+                # preparing a chunk iterator
+                cis_group = container.h5_file[cis_path]
+                ds_slicer = cis_group[columns[0]].iter_chunks()
+                
+                # iterating over chunks
+                triplets = Triplets()
+                while True:
+                    try:
+                        ds_slice = next(ds_slicer)
+                        for column in columns:
+                            triplets[column] = cis_group[column][ds_slice]
+                        yield chrom, triplets
+                    except StopIteration:
+                        break
+    
+    def to_dataframe(self, *args, **kwargs):
+        return pd.DataFrame(self, *args, **kwargs)
+    
     def lock(self):
         logger.debug(f'Requesting (an exclusive) right to: {self.container_path}')
         self.lock_handle.acquire()
