@@ -2,9 +2,6 @@
 import os
 import time
 import pathlib
-import logging
-import copy
-from collections import deque
 from importlib import resources
 import hashlib
 try:
@@ -19,9 +16,10 @@ import joblib
 from triplix.core import configurations
 from triplix.core.triplets import TripletsContainer
 from triplix.core.hdf5 import HDF5Container
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.neighbor'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class NeighborFinder:

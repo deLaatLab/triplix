@@ -1,7 +1,6 @@
 # todo: find overlaps between fragments of a read and flag them accordingly
 
 import time
-import logging
 import pathlib
 
 import h5py
@@ -13,11 +12,12 @@ from triplix.core.hdf5 import DatasetIterator
 from triplix.core.header import TriplixHeader
 from triplix.core.bam import BAMReader
 from triplix.core.utilities import generate_prog_id
+from triplix._logging import get_logger
 
 __version__ = '1.0.0'
 COMMAND_NAME = 'triplix.concatemer'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class Concatemers(dict):

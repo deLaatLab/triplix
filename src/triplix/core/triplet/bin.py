@@ -1,6 +1,5 @@
 import time
 import pathlib
-import logging
 
 import numpy as np
 
@@ -9,10 +8,11 @@ from triplix.core.header import TriplixHeader
 from triplix.core import configurations
 from triplix.core.tri_alignments import TriAlignmentsContainer
 from triplix.core.utilities import generate_prog_id
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.bin'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class TriAlignmentBinner:

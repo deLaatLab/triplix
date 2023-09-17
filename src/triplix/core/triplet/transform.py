@@ -1,29 +1,18 @@
-import io
-import gzip
 import time
 import pathlib
-import logging
-import subprocess
-import copy
 import json
-from collections import deque
 
-import pypairix
 import numpy as np
-import pandas as pd
-import scipy.ndimage as ndimage
 import scipy.signal as signal
 
-from triplix.core.header import TriplixHeader
 from triplix.core import configurations
 from triplix.core.triplets import TripletsContainer, Triplets
-from triplix.core.tri_alignments import TriAlignmentsContainer
-from triplix.core.utilities import generate_prog_id, triplet_to_cube, merge_intervals
-from triplix.core.hdf5 import HDF5Container
+from triplix.core.utilities import generate_prog_id
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.transform'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 def gauss_kernel_3d(width, sigma):

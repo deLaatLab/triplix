@@ -6,14 +6,13 @@ import random
 import string
 import socket
 from typing import Dict
-import logging
 
 import numpy as np
 
+from triplix._logging import get_logger
 
-# from triplix.core import configurations
 COMMAND_NAME = 'triplix.utilities'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 def get_random_string(length):

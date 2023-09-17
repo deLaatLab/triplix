@@ -1,6 +1,5 @@
 import logging
 import argparse
-import sys
 import re
 import json
 
@@ -8,11 +7,11 @@ import numpy as np
 
 from triplix.core import concatemers
 from triplix.core import tri_alignment, triplet
-from triplix.core import configurations
 from triplix.core import stat
 from triplix.core import plot
+from triplix._logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def cli_concatemers(cli_args):
@@ -259,7 +258,7 @@ def cli_stat_decay(cli_args):
         raise ValueError(f'Unknown stat: {cli_args.analysis}')
 
 
-def parse_cli_arguments():
+def define_cli_arguments():
     """Generates command line arguments
     """
     parser_main = argparse.ArgumentParser(prog='triplix', add_help=False)
@@ -484,23 +483,5 @@ def parse_cli_arguments():
                               help='Output file name. If not provided, the output is stored using the input Concatemers filename, with a `.tsv` extension.')
     parser_decay.set_defaults(func=cli_stat_decay)
 
-    # processing CLI input arguments
-    cli_args = parser_main.parse_args()
 
-    # set global logger
-    logger_global = logging.getLogger()
-    logger_global.setLevel(cli_args.log_level)
-
-    # activate debug mode, if requested
-    configurations.configs['debug'] = cli_args.debug
-    if configurations.configs['debug']:
-        logger_global.setLevel(logging.DEBUG)
-        logger.debug('Debug mode is activated.')
-
-    if cli_args.command is None:
-        logger.error('No command is specified. See below for available commands.')
-        parser_main.print_help(file=sys.stderr)
-        exit(1)
-    cli_args.func(cli_args)
-
-    return cli_args
+    return parser_main

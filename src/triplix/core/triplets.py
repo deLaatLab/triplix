@@ -1,10 +1,8 @@
 import copy
 import pathlib
-import re
 import time
 from typing import Any, Union, Iterable
-import logging
-from collections import deque
+# from collections import deque
 
 import fasteners
 import h5py
@@ -14,11 +12,12 @@ from triplix.core import configurations
 from triplix.core.hdf5 import HDF5Container
 from triplix.core.header import TriplixHeader
 from triplix.core.utilities import overlap, generate_prog_id, merge_intervals
+from triplix._logging import get_logger
 
 __version__ = '1.0.0'
 COMMAND_NAME = 'triplix.triplets'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class Triplets(dict):

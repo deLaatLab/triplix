@@ -1,8 +1,7 @@
 
 import time
 import pathlib
-import logging
-import json
+import re
 
 import numpy as np
 import pandas as pd
@@ -15,10 +14,10 @@ from triplix.core import configurations
 from triplix.core import concatemers
 from triplix.core.triplets import TripletsContainer
 from triplix.core.tri_alignments import TriAlignmentsContainer
-from triplix.core.utilities import overlap, triplet_to_cube
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.plot'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 def plot_virtual_hic(
@@ -38,16 +37,19 @@ def plot_virtual_hic(
         if plot_name.endswith('.enrichment'):
             parameters[plot_name] = {
                 'clim_range': [-4, 4],
-                'draw_values': True,
+                'draw_values': False,
             }
         else:
             parameters[plot_name] = {
                 'clim_prct': [20, 96],
-                'draw_values': True,
+                'draw_values': False,
             }
-    for plot_name in plot_params:
-        for key, value in plot_params[plot_name].items():
-            parameters[plot_name][key] = value
+    # setting user-defined parameters
+    for regex_name in plot_params:
+        for plot_name in plot_names:
+            if re.match(regex_name, plot_name):
+                for key, value in plot_params[regex_name].items():
+                    parameters[plot_name][key] = value
 
     # casting input parameters to proper type casting
     input_patterns = input_patterns.split(',')
@@ -122,7 +124,7 @@ def plot_virtual_hic(
         logger.info(f'{input_idx + 1:d}/{len(input_files):d}: Processing: {input_path}')
 
         # if the input is a BAM file
-        if input_path.suffix in ['.bam']:
+        if str(input_path).endswith('.bam'):
 
             # check file to be sorted and indexed
             if not pathlib.Path(str(input_path) + '.bai').is_file():
@@ -261,7 +263,7 @@ def plot_virtual_hic(
             logger.info(f'\t{n_contact:,d} contacts are stored, and {n_dup:,d} are ignored due to duplicity.')
 
         # tri-alignment input
-        elif input_path.suffix in ['.tri-alignments.tsv.bgz', '.btrp']:
+        elif str(input_path).endswith('.tri-alignments.tsv.bgz'):
             logger.info(f'Loading tri-alignments from: {input_path}')
             tri_alignments_obj = TriAlignmentsContainer(trialn_path=input_path)
 
@@ -407,7 +409,7 @@ def plot_virtual_hic(
         axes[pi].set_title(f'{col_name}\nsum={np.nansum(images[col_name]):0.1f}')
 
         # drawing the values over map
-        if parameters[col_name]['draw_values']:
+        if parameters[col_name].get('draw_values', False):
             norm = plt.Normalize(*axes[pi].clim)
             for aj in range(n_anchor):
                 for ak in range(n_anchor):
@@ -430,6 +432,13 @@ def plot_virtual_hic(
                         anchor_edges[aj] + anchor_width // 2,
                         f'{value:0.1f}', color=text_color, fontsize=1, zorder=100, va='center', ha='center',
                     )
+        
+        # adding annotations
+        if 'annotations' in parameters[col_name]:
+            logger.debug(f'Drawing annotations on: {col_name} ...')
+            ant_color = '#000000'  # '#F4FF0A'
+            for ant_idx, (b_beg, b_end, c_beg, c_end) in enumerate(parameters[col_name]['annotations']):
+                axes[pi].add_patch(patches.Rectangle((c_beg, b_beg), c_end - c_beg, b_end - b_beg, linewidth=3, facecolor='none', edgecolor=ant_color, alpha=0.8))
 
     plt.suptitle(f'{input_files[0].name}, #files used: {len(input_files)}\n'
                  f'{view_chrom}:{view_start / 1e6:0,.3f}-{view_end / 1e6:0,.3f}mb, viewpoint={view_point / 1e6:0,.3f}mb\n'
@@ -668,11 +677,11 @@ def plot_hic(
     plt.subplots_adjust(top=1.0 - 0.17 / n_row, wspace=0.2, hspace=0.2)  # , top=0.8
     # plt.show()
 
-    logger_fonttools = logging.getLogger('fontTools.subset')
-    loglevel_prev = logger_fonttools.level
-    logger_fonttools.setLevel(logging.WARNING)
+    # logger_fonttools = logging.getLogger('fontTools.subset')
+    # loglevel_prev = logger_fonttools.level
+    # logger_fonttools.setLevel(logging.WARNING)
     plt.savefig(output_path, bbox_inches='tight')
-    logger_fonttools.setLevel(loglevel_prev)
+    # logger_fonttools.setLevel(loglevel_prev)
     plt.close()
     logger.info(f'Virtual-HiC plot is stored in: {output_path}')
 
@@ -753,11 +762,11 @@ def plot_read_length_histogram(concatemers_path, output_dir=None, output_name=No
     )
     # plt.show()
 
-    logger_fonttools = logging.getLogger('fontTools.subset')
-    loglevel_prev = logger_fonttools.level
-    logger_fonttools.setLevel(logging.WARNING)
+    # logger_fonttools = logging.getLogger('fontTools.subset')
+    # loglevel_prev = logger_fonttools.level
+    # logger_fonttools.setLevel(logging.WARNING)
     plt.savefig(output_path, bbox_inches='tight')
-    logger_fonttools.setLevel(loglevel_prev)
+    # logger_fonttools.setLevel(loglevel_prev)
     plt.close()
     logger.info(f'Read length histogram is stored in: {output_path}')
 
@@ -831,11 +840,11 @@ def plot_alignment_length_histogram(
     )
     # plt.show()
 
-    logger_fonttools = logging.getLogger('fontTools.subset')
-    loglevel_prev = logger_fonttools.level
-    logger_fonttools.setLevel(logging.WARNING)
+    # logger_fonttools = logging.getLogger('fontTools.subset')
+    # loglevel_prev = logger_fonttools.level
+    # logger_fonttools.setLevel(logging.WARNING)
     plt.savefig(output_path, bbox_inches='tight')
-    logger_fonttools.setLevel(loglevel_prev)
+    # logger_fonttools.setLevel(loglevel_prev)
     plt.close()
     logger.info(f'Alignment length histogram is stored in: {output_path}')
 

@@ -3,14 +3,12 @@ import sys
 import gzip
 import time
 import pathlib
-import logging
 import hashlib
 import importlib
 import json
 import re
 # from dataclasses import dataclass
 from typing import Union
-import copy
 
 import pysam
 import h5py
@@ -18,8 +16,9 @@ import h5py
 from triplix.core import configurations
 from triplix.core.utilities import get_random_string
 from triplix.core.hdf5 import HDF5Container
+from triplix._logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class PGNode:
@@ -249,11 +248,11 @@ class ProcessHistoryDAG:
         else:
             output_path = pathlib.Path(output_path).expanduser()
 
-            logger_fonttools = logging.getLogger('fontTools.subset')
-            loglevel_prev = logger_fonttools.level
-            logger_fonttools.setLevel(logging.WARNING)
+            # logger_fonttools = logging.getLogger('fontTools.subset')
+            # loglevel_prev = logger_fonttools.level
+            # logger_fonttools.setLevel(logging.WARNING)
             plt.savefig(fname=output_path)  # , bbox_inches='tight'
-            logger_fonttools.setLevel(loglevel_prev)
+            # logger_fonttools.setLevel(loglevel_prev)
             plt.close()
             logger.info(f'The processing history plot is stored in: {output_path}')
 

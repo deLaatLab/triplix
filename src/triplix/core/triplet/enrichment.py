@@ -1,32 +1,20 @@
 
 import os
-import io
-import gzip
 import time
 import pathlib
-import logging
-import subprocess
-import copy
-from importlib import resources
-import hashlib
 import json
 
-import pypairix
 import numpy as np
-import pandas as pd
-import scipy.ndimage as ndimage
-import scipy.signal as signal
-from sklearn.neighbors import KDTree
 import joblib
 
-from triplix.core.header import TriplixHeader
 from triplix.core import configurations
 from triplix.core.triplets import TripletsContainer
 from triplix.core.utilities import generate_prog_id, overlap
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.enrichment'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class EnrichmentEstimator:

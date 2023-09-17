@@ -4,16 +4,16 @@ import io
 import gzip
 import time
 import pathlib
-import logging
 import subprocess
 
 from triplix.core.header import TriplixHeader
 from triplix.core import configurations
 from triplix.core.utilities import generate_prog_id
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.sort'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class TriAlignmentSorter:

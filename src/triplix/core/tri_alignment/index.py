@@ -1,11 +1,12 @@
 
 
 import pathlib
-import logging
 import subprocess
 
+from triplix._logging import get_logger
+
 COMMAND_NAME = 'triplix.index'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class TripletIndexer:

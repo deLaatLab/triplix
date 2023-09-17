@@ -1,7 +1,5 @@
 
 import pathlib
-import logging
-import tempfile
 from typing import Union
 
 import h5py
@@ -9,9 +7,10 @@ import fasteners
 import numpy as np
 
 from triplix.core import configurations
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.hdf5'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class DatasetIterator:

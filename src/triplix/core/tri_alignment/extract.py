@@ -2,7 +2,6 @@
 
 
 import gzip
-import logging
 import pathlib
 import copy
 import time
@@ -14,6 +13,7 @@ from triplix.core import configurations
 from triplix.core.header import TriplixHeader
 from triplix.core.concatemers import ConcatemersContainer
 from triplix.core.utilities import generate_prog_id
+from triplix._logging import get_logger
 
 # produce pairix:
 # en=sample_100e3_0;
@@ -24,7 +24,7 @@ from triplix.core.utilities import generate_prog_id
 FORMAT_VERSION = '1.0.0'
 COMMAND_NAME = 'triplix.tri-alignment'
 COMMAND_ID = f'{COMMAND_NAME}>{generate_prog_id()}'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class TriAlignmentExtractor:

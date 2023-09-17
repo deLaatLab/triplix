@@ -1,23 +1,16 @@
 
 import time
 import pathlib
-import logging
 
 import numpy as np
-import pandas as pd
-from matplotlib import pyplot as plt, cm, patches
 import h5py
-import pysam
 
-from triplix.core.header import TriplixHeader
 from triplix.core import configurations
 from triplix.core.concatemers import ConcatemersContainer
-from triplix.core.triplets import TripletsContainer
-from triplix.core.tri_alignments import TriAlignmentsContainer
-from triplix.core.utilities import overlap, triplet_to_cube
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.stat'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 def collect_contact_decay_stats(concatemer_path, output_dir=None, output_name=None):
@@ -52,8 +45,8 @@ def collect_contact_decay_stats(concatemer_path, output_dir=None, output_name=No
     }
     bin_edges_lin = np.hstack([np.linspace(0, 9.5e3, 20, dtype=int), np.linspace(10e3, 0.5e6, 50, dtype=int), np.inf])
     bin_edges_log = np.hstack([0, 5000, np.logspace(4, 8, 37, base=10, dtype=int), np.inf])
-    counts_lin = np.zeros([len(axis_edges) for axis_name, axis_edges in criteria.items()] + [len(bin_edges_lin)], dtype=int)
-    counts_log = np.zeros([len(axis_edges) for axis_name, axis_edges in criteria.items()] + [len(bin_edges_log)], dtype=int)
+    counts_lin = np.zeros([len(axis_edges) for axis_edges in criteria.values()] + [len(bin_edges_lin)], dtype=int)
+    counts_log = np.zeros([len(axis_edges) for axis_edges in criteria.values()] + [len(bin_edges_log)], dtype=int)
 
     # iterate over concatemers
     logger.log_time = time.time()
@@ -74,7 +67,7 @@ def collect_contact_decay_stats(concatemer_path, output_dir=None, output_name=No
         captured_chrs = captured_chrs[captured_freq > 1]
 
         # iterate over chromosomes with multi-way captures
-        for chrom_idx, chrom_cis in enumerate(captured_chrs):
+        for chrom_cis in captured_chrs:
             cis_idxs = np.where(concatemer['chrom_num'] == chrom_cis)[0]
             n_cis = len(cis_idxs)
             n_cis_idx = min(n_cis, len(criteria['cctm_n_cis']) - 1)

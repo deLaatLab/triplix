@@ -1,20 +1,20 @@
 import gzip
 import pathlib
 # from itertools import compress
-import logging
 import re
 from typing import Union, Optional, Iterable
-from collections import deque
+# from collections import deque
 
 import numpy as np
 import pandas as pd
 import pypairix
 from triplix.core.header import TriplixHeader
-from triplix.core import configurations
-from triplix.core.utilities import overlap
+# from triplix.core import configurations
+# from triplix.core.utilities import overlap
+from triplix._logging import get_logger
 
 COMMAND_NAME = 'triplix.tri-alignments'
-logger = logging.getLogger(COMMAND_NAME)
+logger = get_logger(COMMAND_NAME)
 
 
 class TriAlignments(dict):

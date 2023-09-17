@@ -30,10 +30,11 @@ pip3 install triplix
 python3 -m pip install triplix
 ```
 
-## Usage:
-Below, you can see how you can extract data in each space.
+## Extracting data:
+`triplix` works in three types of data: `Concatermers`, `Tri-Alignments` and `Triplets`.
+Below, you can see how you can extract each type of data.
 
-### 1. Concatemer space  (*.concatemers.h5)
+### 1. `Concatemer` space  (*.concatemers.h5)
 Provides random-access to read (i.e., `Concatemer`) level data.
 In order to have access to the content of a `Concatemers` container, a handle should be initialized via:
 ```python
@@ -120,7 +121,7 @@ for idx, concatemer in enumerate(concatemers_iter):
   * `read_name`: The name of the sequenced read (aka. `read id`) that is defined by the sequence machine.
   * `read_length`: Length of the read (in terms of basepairs) from which the alignment is originating from.
 
-### 2. Tri-alignment space (*.tri-alignments.tsv.bgz):
+### 2. `Tri-alignment` space (*.tri-alignments.tsv.bgz):
 Provides access to alignment (i.e., `tri-alignments`) level data. 
 These files are essentially formatted as compressed [pairix files](https://github.com/4dn-dcic/pairix). The difference is that they contain three coordinates instead of two coordinates (as is the case for regular pairix files)
 
@@ -179,7 +180,7 @@ For example, by `chrom_X`, we state that each Tri-alignment contains `chrom_A`, 
  * `experiment_name`: Name of the experiment, given by the user (or taken from the `Concatemers` filename).
 
 
-### 3. Triplet space (*.triplets.h5):
+### 3. `Triplet` space (*.triplets.h5):
 Provides access to triplet-level data. A usage example is:
 
 ```python
@@ -267,4 +268,48 @@ Note that the `.iter_chunks()` function returns a tuple of `(current_chromosome,
    + `pairs.neighbors_expected_std`: The standard deviation of `observed_ABC` across the identified similar triplets (i.e., neighbors).
    + `pairs.enrichment`: The enrichment score calculated after comparing the observed and expected number of 3-way contacts (i.e., `observed_ABC` vs. `pairs.neighbors_expected_avg`) while considering the standard deviation of these observations (i.e., `pairs.neighbors_expected_std`)
 
+## Drawing virtual-hic plots (experimental features):
+`triplix` can be used to draw virtual-HiC plots. 
+Note that this is an experimental feature. So the arguments may change in future releases.
+A minimal example of doing this is as follows:
+
+```python
+from triplix.core import plot
+
+call = {
+  'chrom': 'chr8',
+  'start_A': int(119.825e6),
+  'start_B': int(120.100e6),
+  'start_C': int(120.425e6),
+}
+ant_coords = [[call['start_B'] - 50e3, call['start_B'] + 75e3, call['start_C'] - 50e3, call['start_C'] + 75e3]]
+
+plot.plot_virtual_hic(
+  input_patterns=f"./GM12878.MC-HiC.hg38.triplets.h5",
+  view_chrom=call['chrom'], 
+  view_start=call['start_A'] - 750e3, 
+  view_end=call['start_C'] + 750e3 ,
+  view_point=call['start_A'],
+  plot_names=(
+      'count_ABC', 
+      'observed_ABC', 
+      'singletons.enrichment',
+      'pairs.enrichment',
+      'pairs_surround.enrichment',
+  ),
+  output_dir='./',
+  output_name='virtual-hic_example.pdf',
+  plot_params={"sin.*enrichment": {"annotations":ant_coords}}
+)
+```
+The above code would produce a plot like below. Notice the black (rectangle) annotation in the middle plot which is drawn
+as requested in `plot_params` argument.
+![Example of virtual-HiC plot](./examples/virtual-hic_example.png)
+
+#### Description of arguments:
+The majority of the arguments are assumed to be self-explanatory, but some may not be clear
+* `input_patterns`: Path to `Triplet` container.
+* `plot_names`: The column in the `Triplet` container to be used in the plot.
+* `plot_params`: Can be used send varied parameters to the plot (see source code for details). 
+  Most importantly, you can define (using regular expressions) which plot should be annotated. Annotation format can be seen in the example above.
 
